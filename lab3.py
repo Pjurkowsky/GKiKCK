@@ -3,6 +3,8 @@ import sys
 
 from glfw.GLFW import *
 
+import glfw
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
@@ -13,6 +15,29 @@ import random
 N = 20
 rgb_values = np.random.rand(N, N, 3)
 
+prev_x = None
+rotation_x = 170.0
+prev_y = None
+rotation_y = 9.0
+
+def mouse_button_callback(window, button, action, mods):
+    global prev_x, prev_y, rotation_x, rotation_y
+    if action == glfw.PRESS:
+        if button == glfw.MOUSE_BUTTON_LEFT:
+            prev_x, prev_y = glfw.get_cursor_pos(window)
+        else:
+            prev_x, prev_y = None, None
+    elif action == glfw.RELEASE and button == glfw.MOUSE_BUTTON_LEFT:
+        prev_x, prev_y = None, None
+
+def cursor_pos_callback(window, x, y):
+    global prev_x, prev_y, rotation_x, rotation_y
+    if prev_x is not None and prev_y is not None:
+        dx, dy = x - prev_x, y - prev_y
+        prev_x, prev_y = x, y
+        rotation_x += dx * 0.5  
+        rotation_y += dy * 0.5
+        glfw.set_cursor_pos(window, prev_x, prev_y)
 
 def startup():
     update_viewport(None, 400, 400)
@@ -156,20 +181,66 @@ def egg_triangle_strip():
 
             glVertex3fv(tab[i + 1][j])
 
+            glColor3fv(rgb_values[i + 1][j + 1])
+            glVertex3fv(tab[i + 1][j + 1])
+
     glEnd()
 
 
-def sierpinski_triangle_3d():
+
+
+def draw_pyramid(size, pos):
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+
     glBegin(GL_TRIANGLES)
-    glVertex3f(0.0, 0.0, 0.0)
 
-    glVertex3f(1.0, 0.0, 0.0)
 
-    glVertex3f(0.0, 1.0, 0.0)
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(0.0 * size + pos[0], 1.0 * size + pos[1], 0.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(0.0 * size + pos[0], 1.0 * size + pos[1], 0.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(0.0 * size + pos[0], 1.0 * size + pos[1], 0.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(0.0 * size + pos[0], 1.0 * size + pos[1], 0.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
 
     glEnd()
 
 
+ 
+    glPopMatrix()
+
+#5.0
+def sierpinski_triangle_3d(size, pos, current_iter, iter):
+    if current_iter == iter:
+        draw_pyramid(size, pos)
+    else:
+        sierpinski_triangle_3d(size / 2, pos, current_iter + 1, iter)
+        sierpinski_triangle_3d(size / 2, [pos[0] + size / 2, pos[1], pos[2]], current_iter + 1, iter)
+        sierpinski_triangle_3d(size / 2, [pos[0] + size / 4, pos[1] + size / 2, pos[2] + size / 4], current_iter + 1, iter)
+        sierpinski_triangle_3d(size / 2, [pos[0] + size / 2, pos[1],  pos[2] + size / 2], current_iter + 1, iter)
+        sierpinski_triangle_3d(size / 2, [pos[0], pos[1], pos[2] + size / 2], current_iter + 1, iter)
+        
 def axes():
     glBegin(GL_LINES)
 
@@ -187,15 +258,32 @@ def axes():
 
     glEnd()
 
-
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClearColor(1.0, 1.0, 1.0, 1.0)
+    glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    # spin(time * 180 / 3.1415)
+    
+    spin(time * 180 / 3.1415)
+
+    glRotatef(rotation_x, 0.0, 1.0, 0.0)
+    glRotatef(rotation_y, 1.0, 0.0, 0.0)
+
     axes()
 
-    sierpinski_triangle_3d()
+    # 3.0
+    #egg_points()
 
+    # 3.5
+    #egg_lines()
+
+    # 4.0
+    #egg_triangles()
+    
+    # 4.5
+    #egg_triangle_strip()
+    # 5.0
+    #sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 1)
     glFlush()
 
 
@@ -231,6 +319,9 @@ def main():
     glfwMakeContextCurrent(window)
     glfwSetFramebufferSizeCallback(window, update_viewport)
     glfwSwapInterval(1)
+
+    glfw.set_mouse_button_callback(window, mouse_button_callback)
+    glfw.set_cursor_pos_callback(window, cursor_pos_callback)
 
     startup()
     while not glfwWindowShouldClose(window):

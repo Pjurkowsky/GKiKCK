@@ -58,34 +58,62 @@ def draw_carpet(x, y, size, current_iter, iter, d=0):
                 draw_carpet(n_x, n_y, size / 3, current_iter + 1, iter, d)
 
 
+def draw_triangle_1():
+    glBegin(GL_TRIANGLES)
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex2f(25.0, 75.0)
+
+
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex2f(50.0, 25.0)
+    
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex2f(75.0, 75.0)
+    glEnd()
+
+
 def draw_triangle(x, y, l, color=(0.0, 0.0, 0.0)):
     glColor3fv(color)
 
     glBegin(GL_TRIANGLES)
     glVertex2f(x, y)
 
-    glVertex2f(x + l, y)
+    glVertex2f(x - l, y)
 
-    glVertex2f(x + l / 2, y + sin(pi / 3) * l)
+    glVertex2f(x - l / 2, y - sin(pi / 3) * l)
     glEnd()
 
 
-def draw_sierp_trianagle(x, y, l, curr_iter, iter):
+def draw_sierp_trianagle(x, y, l, curr_iter, iter, color=(0.0, 0.0, 0.0)):
     if curr_iter == iter:
-        draw_triangle(x, y, l)
+        draw_triangle(x, y, l, color)
     else:
-        draw_sierp_trianagle(x, y, l / 2, curr_iter + 1, iter)
-        draw_sierp_trianagle(x + l / 2, y, l / 2, curr_iter + 1, iter)
+        draw_sierp_trianagle(x, y, l / 2, curr_iter + 1, iter, color)
+        draw_sierp_trianagle(x - l / 2, y, l / 2, curr_iter + 1, iter,color)
         draw_sierp_trianagle(
-            x + l / 4, y + sin(pi / 3) * l / 2, l / 2, curr_iter + 1, iter
+            x - l / 4, y - sin(pi / 3) * l / 2, l / 2, curr_iter + 1, iter , color
         )
 
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
-    # draw_rectangle(0, 0, 50, 50, 0, (red, green, blue))
-    draw_carpet(0, 0, 100, 1, 4, 0)
-    # draw_sierp_trianagle(0, 0, 40, 1, 4)
+
+    #3.0
+    #draw_triangle_1()   
+
+    #3.5
+    #draw_rectangle(25, 25, 50, 50, 0, (red, green, blue))
+
+    #4.0
+    #draw_rectangle(25, 25, 50, 50, 5, (red, green, blue))
+
+    #4.5
+    #draw_carpet(0, 0, 100, 1, 4, 3)
+    
+    #5.0
+    draw_sierp_trianagle(100, 100, 100, 1, 2, (red, green, blue))
+
     glFlush()
 
 
@@ -94,16 +122,18 @@ def update_viewport(window, width, height):
         width = 1
     if height == 0:
         height = 1
+
     aspect_ratio = width / height
 
     glMatrixMode(GL_PROJECTION)
-    glViewport(0, 0, width, height)
+    glViewport(0, 400 - height, width, height)  # Change here
+
     glLoadIdentity()
 
     if width <= height:
-        glOrtho(-100.0, 100.0, -100.0 / aspect_ratio, 100.0 / aspect_ratio, 1.0, -1.0)
+        glOrtho(0, 100.0, 100.0 / aspect_ratio, 0, 1.0, -1.0)  # Change here
     else:
-        glOrtho(-100.0 * aspect_ratio, 100.0 * aspect_ratio, -100.0, 100.0, 1.0, -1.0)
+        glOrtho(0, 100.0 * aspect_ratio, 100.0, 0, 1.0, -1.0)  # Change here
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
