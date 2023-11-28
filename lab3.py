@@ -195,7 +195,6 @@ def draw_pyramid(size, pos):
 
     glBegin(GL_TRIANGLES)
 
-
     glColor3f(1.0, 0.0, 0.0)
     glVertex3f(0.0 * size + pos[0], 1.0 * size + pos[1], 0.0 * size + pos[2])
     glColor3f(0.0, 1.0, 0.0)
@@ -223,11 +222,22 @@ def draw_pyramid(size, pos):
     glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
     glColor3f(0.0, 0.0, 1.0)
     glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], 1.0 * size + pos[2])
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(-1.0 * size + pos[0], -1.0 * size + pos[1], -1.0 * size + pos[2])
 
     glEnd()
-
-
- 
     glPopMatrix()
 
 #5.0
@@ -283,7 +293,8 @@ def render(time):
     # 4.5
     #egg_triangle_strip()
     # 5.0
-    #sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 1)
+    sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 2)
+    
     glFlush()
 
 

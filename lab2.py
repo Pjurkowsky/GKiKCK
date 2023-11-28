@@ -109,10 +109,10 @@ def render(time):
     #draw_rectangle(25, 25, 50, 50, 5, (red, green, blue))
 
     #4.5
-    #draw_carpet(0, 0, 100, 1, 4, 3)
+    #draw_carpet(0, 0, 100, 1, 6, 1)
     
     #5.0
-    draw_sierp_trianagle(100, 100, 100, 1, 2, (red, green, blue))
+    draw_sierp_trianagle(100, 100, 100, 1, 5, (red, green, blue))
 
     glFlush()
 
@@ -126,14 +126,14 @@ def update_viewport(window, width, height):
     aspect_ratio = width / height
 
     glMatrixMode(GL_PROJECTION)
-    glViewport(0, 400 - height, width, height)  # Change here
+    glViewport(0, 400 - height, width, height)
 
     glLoadIdentity()
 
     if width <= height:
-        glOrtho(0, 100.0, 100.0 / aspect_ratio, 0, 1.0, -1.0)  # Change here
+        glOrtho(0, 100.0, 100.0 / aspect_ratio, 0, 1.0, -1.0) 
     else:
-        glOrtho(0, 100.0 * aspect_ratio, 100.0, 0, 1.0, -1.0)  # Change here
+        glOrtho(0, 100.0 * aspect_ratio, 100.0, 0, 1.0, -1.0)
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
