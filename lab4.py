@@ -8,7 +8,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 
-viewer = [10.0, 0.0, 0.0]
+viewer = [30.0, 0.0, 0.0]
 
 theta = 0.0
 phi = 0.0
@@ -16,16 +16,28 @@ pix2angle = 1.0
 
 scale = 1.0
 
-left_mouse_button_pressed = 0
+left_mouse_button_pressed = False
 right_mouse_button_pressed = False
-middle_mouse_button_pressed = 0
+middle_mouse_button_pressed = False
+
+W_keyboard_button_pressed = False
+A_keyboard_button_pressed = False
+S_keyboard_button_pressed = False
+D_keyboard_button_pressed = False
+R_keyboard_button_pressed = False
+
+
 mouse_x_pos_old = 0
 delta_x = 0
 
 mouse_y_pos_old = 0
 delta_y = 0
 
-R = 10.0
+R = 30.0
+
+xangle = 30.0
+yangle = 0
+zangle = 0
 
 
 def startup():
@@ -54,41 +66,6 @@ def axes():
     glVertex3f(0.0, 0.0, 5.0)
 
     glEnd()
-
-
-def example_object():
-    glColor3f(1.0, 1.0, 1.0)
-
-    quadric = gluNewQuadric()
-    gluQuadricDrawStyle(quadric, GLU_LINE)
-    glRotatef(90, 1.0, 0.0, 0.0)
-    glRotatef(-90, 0.0, 1.0, 0.0)
-
-    gluSphere(quadric, 1.5, 10, 10)
-
-    glTranslatef(0.0, 0.0, 1.1)
-    gluCylinder(quadric, 1.0, 1.5, 1.5, 10, 5)
-    glTranslatef(0.0, 0.0, -1.1)
-
-    glTranslatef(0.0, 0.0, -2.6)
-    gluCylinder(quadric, 0.0, 1.0, 1.5, 10, 5)
-    glTranslatef(0.0, 0.0, 2.6)
-
-    glRotatef(90, 1.0, 0.0, 1.0)
-    glTranslatef(0.0, 0.0, 1.5)
-    gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
-    glTranslatef(0.0, 0.0, -1.5)
-    glRotatef(-90, 1.0, 0.0, 1.0)
-
-    glRotatef(-90, 1.0, 0.0, 1.0)
-    glTranslatef(0.0, 0.0, 1.5)
-    gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
-    glTranslatef(0.0, 0.0, -1.5)
-    glRotatef(90, 1.0, 0.0, 1.0)
-
-    glRotatef(90, 0.0, 1.0, 0.0)
-    glRotatef(-90, 1.0, 0.0, 0.0)
-    gluDeleteQuadric(quadric)
 
 
 def draw_pyramid(size, pos):
@@ -145,8 +122,6 @@ def draw_pyramid(size, pos):
     glEnd()
     glPopMatrix()
 
-# 5.0
-
 
 def sierpinski_triangle_3d(size, pos, current_iter, iter):
     if current_iter == iter:
@@ -169,21 +144,26 @@ def render(time):
     global scale
     global R
 
+    global xangle
+    global yangle
+    global zangle
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    theta %= 360
-    phi %= 360
+    if R_keyboard_button_pressed:
+        gluLookAt(viewer[0], viewer[1], viewer[2],
+                  viewer[0] - xangle, viewer[1] + yangle, viewer[2] - zangle, 0.0, 1.0, 0.0)
+    elif not middle_mouse_button_pressed:
+        theta %= 360
+        phi %= 360
 
-    s = 1.0
-    if phi > 90 and phi < 270:
-        s = -1.0
-
-    x_eye = R * cos(theta * pi / 180.0) * cos(phi * pi / 180.0)
-    y_eye = R * sin(phi * pi / 180.0)
-    z_eye = R * sin(theta * pi / 180.0) * cos(phi * pi / 180.0)
-
-    if not middle_mouse_button_pressed:
+        s = 1.0
+        if phi > 90 and phi < 270:
+            s = -1.0
+        x_eye = R * cos(theta * pi / 180.0) * cos(phi * pi / 180.0)
+        y_eye = R * sin(phi * pi / 180.0)
+        z_eye = R * sin(theta * pi / 180.0) * cos(phi * pi / 180.0)
         gluLookAt(x_eye, y_eye, z_eye,
                   0.0, 0.0, 0.0, 0.0, s, 0.0)
     else:
@@ -200,6 +180,19 @@ def render(time):
     if right_mouse_button_pressed:
         scale += delta_y * 0.01
         R += delta_y * 0.1
+
+    if W_keyboard_button_pressed:
+        viewer[0] -= xangle * 0.5
+        viewer[2] -= zangle * 0.5
+    if A_keyboard_button_pressed:
+        viewer[0] -= zangle * 0.5
+        viewer[2] += xangle * 0.5
+    if S_keyboard_button_pressed:
+        viewer[0] += xangle * 0.5
+        viewer[2] += zangle * 0.5
+    if D_keyboard_button_pressed:
+        viewer[0] += zangle * 0.5
+        viewer[2] -= xangle * 0.5
 
     axes()
     sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 2)
@@ -226,8 +219,32 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
+    global viewer
+    global W_keyboard_button_pressed
+    global A_keyboard_button_pressed
+    global S_keyboard_button_pressed
+    global D_keyboard_button_pressed
+    global R_keyboard_button_pressed
+
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
+
+    if action == GLFW_PRESS or action == GLFW_REPEAT:
+        if key == GLFW_KEY_W:
+            W_keyboard_button_pressed = True
+        if key == GLFW_KEY_S:
+            S_keyboard_button_pressed = True
+        if key == GLFW_KEY_A:
+            A_keyboard_button_pressed = True
+        if key == GLFW_KEY_D:
+            D_keyboard_button_pressed = True
+        if key == GLFW_KEY_R:
+            R_keyboard_button_pressed = not R_keyboard_button_pressed
+    else:
+        W_keyboard_button_pressed = False
+        A_keyboard_button_pressed = False
+        S_keyboard_button_pressed = False
+        D_keyboard_button_pressed = False
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
@@ -236,6 +253,25 @@ def mouse_motion_callback(window, x_pos, y_pos):
 
     global delta_y
     global mouse_y_pos_old
+
+    global xangle
+    global yangle
+    global zangle
+
+    if R_keyboard_button_pressed:
+        x_pos = (x_pos - 200) * 0.01
+        y_pos = (y_pos - 200) * 0.01
+        if y_pos <= -10.0:
+            y_pos = -10.0
+        if y_pos >= 10.0:
+            y_pos = 10.0
+
+    xangle = sin(x_pos)
+    yangle = -y_pos
+    zangle = -cos(x_pos)
+
+    if yangle * pi / 180.0 > 45 or yangle * pi / 180.0 < -45:
+        yangle = 45.0
 
     delta_y = y_pos - mouse_y_pos_old
     mouse_y_pos_old = y_pos
@@ -250,14 +286,14 @@ def mouse_button_callback(window, button, action, mods):
     global middle_mouse_button_pressed
 
     if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
-        left_mouse_button_pressed = 1
+        left_mouse_button_pressed = True
     else:
-        left_mouse_button_pressed = 0
+        left_mouse_button_pressed = False
 
     if button == GLFW_MOUSE_BUTTON_RIGHT and action == GLFW_PRESS:
-        right_mouse_button_pressed = 1
+        right_mouse_button_pressed = True
     else:
-        right_mouse_button_pressed = 0
+        right_mouse_button_pressed = False
 
     if button == GLFW_MOUSE_BUTTON_MIDDLE and action == GLFW_PRESS:
         middle_mouse_button_pressed = not middle_mouse_button_pressed
@@ -271,7 +307,7 @@ def main():
     if not window:
         glfwTerminate()
         sys.exit(-1)
-
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
     glfwMakeContextCurrent(window)
     glfwSetFramebufferSizeCallback(window, update_viewport)
     glfwSetKeyCallback(window, keyboard_key_callback)
