@@ -26,7 +26,6 @@ S_keyboard_button_pressed = False
 D_keyboard_button_pressed = False
 R_keyboard_button_pressed = False
 
-
 mouse_x_pos_old = 0
 delta_x = 0
 
@@ -219,7 +218,6 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global viewer
     global W_keyboard_button_pressed
     global A_keyboard_button_pressed
     global S_keyboard_button_pressed
@@ -232,13 +230,13 @@ def keyboard_key_callback(window, key, scancode, action, mods):
     if action == GLFW_PRESS or action == GLFW_REPEAT:
         if key == GLFW_KEY_W:
             W_keyboard_button_pressed = True
-        if key == GLFW_KEY_S:
+        elif key == GLFW_KEY_S:
             S_keyboard_button_pressed = True
-        if key == GLFW_KEY_A:
+        elif key == GLFW_KEY_A:
             A_keyboard_button_pressed = True
-        if key == GLFW_KEY_D:
+        elif key == GLFW_KEY_D:
             D_keyboard_button_pressed = True
-        if key == GLFW_KEY_R:
+        elif key == GLFW_KEY_R:
             R_keyboard_button_pressed = not R_keyboard_button_pressed
     else:
         W_keyboard_button_pressed = False
