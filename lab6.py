@@ -328,7 +328,7 @@ def render(window, time):
         viewer[0] += zangle * 0.5
         viewer[2] -= xangle * 0.5
 
-    # sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 0)
+    # sierpinski_triangle_3d(5.0, [0.0, 0.0, 0.0], 0, 2)
     egg_triangle_strip()
     glFlush()
 
